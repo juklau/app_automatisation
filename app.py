@@ -3,10 +3,10 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import base64
-
+import os   #pour générer des id pour les messages envoyés 
 
 from supabase import create_client, Client
-from datetime import datetime 
+from datetime import datetime, timezone
 
 st.markdown("""
         <div style= "text-align: center; padding-bottom: 60px;">
@@ -113,7 +113,6 @@ chat_name_map = {}
 for chat_id in df["chat_row_id"].unique():
     participants = df[df["chat_row_id"] == chat_id]
     others = participants[participants["sender"] != my_provider_id]
-
     names = others["full_name"].dropna().unique()
    
     fallback = participants["attendee_name"].dropna().unique()  # il faut mettre participants et pas others!!!
@@ -187,7 +186,6 @@ for _, row in messages_df.iterrows():
     sender = row.get("sender", "Inconnu")
     full_name = row.get("full_name") if (row.get("full_name")) else "Expéditeur inconnu"
     photo_url = row.get("profile_picture_url")
-    account_id = row.get("account_id", "Inconnu")
     message = row.get("content", "")
     is_from_me = row.get("is_from_me")
 
@@ -227,13 +225,48 @@ for _, row in messages_df.iterrows():
     # st.markdown("---")
     st.divider()
 
+# générer un id
+def generate_id_type_linkedin(byte_length = 16):
+    random_byte = os.urandom(byte_length)
+    encoded = base64.urlsafe_b64encode(random_byte).decode('utf-8')
+    return encoded.rstrip('=') # pour enlever le padding
+
+# récuperer les données pour l'envoie dans Supabase
+account_id = messages_df["account_id"].dropna().iloc[0]
+provider_id = messages_df["provider_id"].dropna().iloc[0]
+chat_id_choisi = messages_df["chat_id"].dropna().iloc[0]
+# st.write(f"chat_id_choisi : {chat_id_choisi}")
+
+
 
 # pour envoyer un message par l'utilisateur: boîte de saisi de type chat
 prompt = st.chat_input(f"Rédigez un message à {contact_person}")
 if prompt:
     st.write(f"Vous avez écrit : {prompt}")
 
+    nouveau_message = {
+        "id": generate_id_type_linkedin(),
+        "chat_row_id" :  selected_chat,
+        "chat_id" : chat_id_choisi,
+        "content" : prompt,
+        "created_at" : datetime.now(timezone.utc).isoformat(),
+        "sender" : my_provider_id,
+        "is_from_me" : True,
+        "account_id" : account_id,
+        "provider_id" : provider_id,
+        "message_type" : "MESSAGE",
+        "reactions" : {},
+        "attachments" : {}
+    }
 
+    reponse = supabase.table("linkedin_messages").insert(nouveau_message).execute()
+
+    if reponse.data:
+        st.success("Le message a été bien enregistré dans la BDD")
+        st.rerun()
+    else:
+        st.error("Un erreur est survenu pendant l'enregistrement")
+        st.write(reponse)
 
 
 
