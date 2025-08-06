@@ -1,4 +1,7 @@
 # Afficher les messages LinkedIn avec Streamlit
+import time
+from urllib import response
+import requests
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -30,7 +33,8 @@ def init_connection():
 supabase = init_connection()
 
 # réexécution uniquement lorsque la requête change ou après 10 minutes
-@st.cache_data(ttl=600) # => permet d’éviter les requêtes répétitives
+
+# @st.cache_data(ttl=600) # => permet d’éviter les requêtes répétitives
 # récupération les messages de Supabase par le fonction écrit dedans
 def run_query():
     # reponse = supabase.table("documents").select("*").execute()
@@ -134,7 +138,9 @@ if df.empty:
     st.warning("Aucune donnée de chat trouvée...")
 else:
     st.subheader("Choisissez une conversation: ")
-    selected_name = st.selectbox("",list(chat_name_map.keys()))
+    selected_name = st.selectbox("Choisissez une conversation: ", #label obligatoire pour selectbox
+                                 list(chat_name_map.keys()), 
+                                 label_visibility="collapsed") #cacher le label dans l'interface
 
 selected_chat = chat_name_map[selected_name]
 
@@ -238,6 +244,43 @@ chat_id_choisi = messages_df["chat_id"].dropna().iloc[0]
 # st.write(f"chat_id_choisi : {chat_id_choisi}")
 
 
+# fonction pour envoyer un message à LinkedIn via l'API Unipile
+def post_message_to_linkedin(message, chat_id, account_id, provider_id):
+   
+    url = f"https://api17.unipile.com:14751/api/v1/chats/{chat_id}/messages"
+
+    headers = {
+        "X-API-KEY": st.secrets['UNIPILE_API_KEY_2'],  # Utiliser la clé API de Unipile
+        "Content-Type": "application/json", 
+        "accept": "application/json"
+    }
+
+    payload = {
+        "chat_id" : chat_id,
+        "text" : message,
+        "account_id" : account_id,
+        "provider_id" : provider_id,
+        "message_type" : "MESSAGE"
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    try:
+        data = response.json()
+    except:
+        data = response.text
+
+    # Vérifier si la requête a réussi
+    # 201 => Created, 200 => OK
+    # 202 => Accepted (la requête a été acceptée mais pas encore traitée
+    if response.status_code in (200, 201):
+        st.success("Message envoyé avec succès à LinkedIn.")
+        st.write("Données de réponse:", data)
+    else:
+        st.error(f"Erreur lors de l'envoi {response.status_code}.")
+        st.write("Payload envoyé:", payload)
+        st.write("Données de réponse:", data)
+
 
 # pour envoyer un message par l'utilisateur: boîte de saisi de type chat
 prompt = st.chat_input(f"Rédigez un message à {contact_person}")
@@ -263,6 +306,31 @@ if prompt:
 
     if reponse.data:
         st.success("Le message a été bien enregistré dans la BDD")
+
+        # Envoi du message à LinkedIn via l'API Unipile
+        post_message_to_linkedin(
+            message=prompt,
+            chat_id=chat_id_choisi,
+            account_id=account_id,
+            provider_id=provider_id
+        )
+        
+        # mise à jour la conversation en récupérant les messages du chat
+        # messages = supabase.table("linkedin_messages")\
+        #         .select("*")\
+        #         .eq("chat_id", chat_id_choisi)\
+        #         .execute().data
+
+        # if messages:
+        #     for msg in messages:
+        #         if msg["is_from_me"]:
+        #             st.chat_message("user").write(msg["content"])
+        #         else:
+        #             st.chat_message("assistant").write(msg["content"])  
+
+        # time.sleep(1)  # attendre un peu pour que le message soit bien envoyé
+
+        # # recharger la page pour afficher le nouveau message
         st.rerun()
     else:
         st.error("Un erreur est survenu pendant l'enregistrement")
@@ -273,19 +341,11 @@ if prompt:
 
 
 
-
-# st.dataframe(df[['content', 'created at']])
-
-# for row in rows:
-#     st.write(row['message'])
-#     st.divider()
-
-# for i, item in enumerate(rows):
-#     st.write(f"{i+1}. {item}")
+# Bonjour Victor, aujourd'hui est mercredi et je vais bien t'embeter sur linkedin
 
 
 
 
 
-
+# Pour éviter les conflits de fusion dans les PRs, on peut ajouter cette ligne
 # "Prefer": "resolution=merge-duplicates"
