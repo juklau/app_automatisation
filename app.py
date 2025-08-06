@@ -245,7 +245,7 @@ chat_id_choisi = messages_df["chat_id"].dropna().iloc[0]
 
 
 # fonction pour envoyer un message à LinkedIn via l'API Unipile
-def post_message_to_linkedin(message, chat_id, account_id, provider_id):
+def post_message_to_linkedin(message, chat_id, account_id, provider_id, local_message_id):
    
     url = f"https://api17.unipile.com:14751/api/v1/chats/{chat_id}/messages"
 
@@ -276,6 +276,16 @@ def post_message_to_linkedin(message, chat_id, account_id, provider_id):
     if response.status_code in (200, 201):
         st.success("Message envoyé avec succès à LinkedIn.")
         st.write("Données de réponse:", data)
+
+        linkedin_message_id = data.get("message_id")
+
+        # Mettre à jour la ligne existante avec le vrai linkedin_message_id
+        if linkedin_message_id:
+            supabase.table("linkedin_messages")\
+                .update({"linkedin_message_id": linkedin_message_id})\
+                .eq("id", local_message_id)\
+                .execute()
+
     else:
         st.error(f"Erreur lors de l'envoi {response.status_code}.")
         st.write("Payload envoyé:", payload)
@@ -287,8 +297,11 @@ prompt = st.chat_input(f"Rédigez un message à {contact_person}")
 if prompt:
     st.write(f"Vous avez écrit : {prompt}")
 
+    linkedin_local_id = generate_id_type_linkedin()
+
     nouveau_message = {
-        "id": generate_id_type_linkedin(),
+        "id": linkedin_local_id,
+        "linkedin_message_id": None,  # initialement None, mis à jour après l'envoi
         "chat_row_id" :  selected_chat,
         "chat_id" : chat_id_choisi,
         "content" : prompt,
@@ -299,7 +312,7 @@ if prompt:
         "provider_id" : provider_id,
         "message_type" : "MESSAGE",
         "reactions" : {},
-        "attachments" : {}
+        "attachments" : {},
     }
 
     reponse = supabase.table("linkedin_messages").insert(nouveau_message).execute()
@@ -309,27 +322,13 @@ if prompt:
 
         # Envoi du message à LinkedIn via l'API Unipile
         post_message_to_linkedin(
-            message=prompt,
-            chat_id=chat_id_choisi,
-            account_id=account_id,
-            provider_id=provider_id
+            message = prompt,
+            chat_id = chat_id_choisi,
+            account_id = account_id,
+            provider_id = provider_id,
+            local_message_id = linkedin_local_id
         )
         
-        # mise à jour la conversation en récupérant les messages du chat
-        # messages = supabase.table("linkedin_messages")\
-        #         .select("*")\
-        #         .eq("chat_id", chat_id_choisi)\
-        #         .execute().data
-
-        # if messages:
-        #     for msg in messages:
-        #         if msg["is_from_me"]:
-        #             st.chat_message("user").write(msg["content"])
-        #         else:
-        #             st.chat_message("assistant").write(msg["content"])  
-
-        # time.sleep(1)  # attendre un peu pour que le message soit bien envoyé
-
         # # recharger la page pour afficher le nouveau message
         st.rerun()
     else:
