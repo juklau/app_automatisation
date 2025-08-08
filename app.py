@@ -412,6 +412,7 @@ else: #si is_authenticated est True
                 "Content-Type": "application/json",
                 "accept": "application/json"
             }
+
             payload = {
                 "chat_id": chat_id,
                 "text": message,
@@ -419,6 +420,7 @@ else: #si is_authenticated est True
                 "provider_id": provider_id,
                 "message_type": "MESSAGE"
             }
+
             response = requests.post(url, headers=headers, json=payload)
             try:
                 data = response.json()
@@ -437,7 +439,8 @@ else: #si is_authenticated est True
                 st.write("Données de réponse:", data)
 
         # pour envoyer un message par l'utilisateur: boîte de saisi de type chat
-        prompt = st.chat_input(f"Rédigez un message à {full_name}")
+    
+        prompt = st.chat_input(f"Rédigez un message à {full_name}") # a regarder!!!!!!!!!!!!!
         if prompt:
             # st.write(f"Vous avez écrit : {prompt}")
             post_message_to_linkedin(prompt, chat_id_choisi, account_id, provider_id)
