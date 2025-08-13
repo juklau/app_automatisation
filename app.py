@@ -32,10 +32,10 @@ from datetime import timedelta
 def generate_auth_link():
 
     # l'URL de l'API Unipile pour générer un lien d'authentification
-    url = "https://api17.unipile.com:14751/api/v1/hosted/accounts/link"
+    url = "https://api18.unipile.com:14803/api/v1/hosted/accounts/link"
 
     headers = {
-        "X-API-KEY": st.secrets['UNIPILE_API_KEY_2'],  # Utiliser la clé API de Unipile
+        "X-API-KEY": st.secrets['UNIPILE_API_KEY_3'],  # Utiliser la clé API de Unipile
         "Content-Type": "application/json", 
         "accept": "application/json"
     }
@@ -53,9 +53,9 @@ def generate_auth_link():
     payload = {
         "type": "create",
         "providers": ["LINKEDIN"],
-        "api_url": "https://api17.unipile.com:14751",
+        "api_url": "https://api18.unipile.com:14803",
         "expiresOn": expire_time_iso,
-        "success_redirect_url": "http://192.168.1.10:8501"  # URL de redirection après l'authentification
+        "success_redirect_url": "http://192.168.0.100:8501"  # URL de redirection après l'authentification
     }
 
     # envoie la requête POST à l'API Unipile
@@ -86,10 +86,10 @@ def generate_auth_link():
 # Récupère l'account_id de l'utilisateur authentifié depuis l'API Unipile.
 def get_account_id_from_unipile():
    
-    url = "https://api17.unipile.com:14751/api/v1/accounts"
+    url = "https://api18.unipile.com:14803/api/v1/accounts"
     headers = {
-        "X-API-KEY": st.secrets['UNIPILE_API_KEY_2'],  # Utiliser la clé API de Unipile
-        # "Content-Type": "application/json", 
+        "X-API-KEY": st.secrets['UNIPILE_API_KEY_3'],  # Utiliser la clé API de Unipile
+        # "Content-Type": "application/json",
         "accept": "application/json"
     }
 
@@ -117,13 +117,13 @@ def get_account_id_from_unipile():
 def post_auth_data_n8n():
 
     account_id = get_account_id_from_unipile() 
-
+    # st.write("Récupération de l'account_id depuis Unipile:", account_id)
     if not account_id:
         st.error("Aucun account_id trouvé dans la session pour envoyer à n8n.")
         return  # Arrêter la fonction si account_id est manquant
 
     # Fonction pour envoyer les données d'authentification à N8N
-    url = "https://juklau.app.n8n.cloud/webhook/new_user_auth"  
+    url = "https://juklau.app.n8n.cloud/webhook/new_user_auth2"  
 
     headers = {
         "Content-Type": "application/json"
@@ -133,6 +133,7 @@ def post_auth_data_n8n():
         "account_id": account_id
     }
 
+    # st.write("account_id:", st.session_state.get("account_id")) #eddig jo!
     try:
         response = requests.post(url, headers=headers, json=payload)
         if response.status_code in (200, 201, 202, 204):
@@ -154,26 +155,31 @@ if not st.session_state["is_authenticated"]:
     if auth_link:
         # Affiche le lien (clic manuel) ou redirige une seule fois
         st.markdown(f"""
-                <a href="{auth_link}" target="_blank" style="
-                    display: inline-block;
-                    margin-top: 300px;
-                    margin-bottom: 30px;
-                    padding: 10px 20px;
-                    background-color: transparent;
-                    color: white;
-                    font-weight: bold;
-                    text-align: center;
-                    border: 1px solid white;
-                    border-radius: 10px;
-                    text-decoration: none;
-                    cursor: pointer;
-                ">Cliquez ici pour vous authentifier</a>
+                <style>
+                    .auth_link {{
+                        display: inline-block;
+                        margin-top: 300px;
+                        margin-bottom: 30px;
+                        padding: 10px 20px;
+                        background-color: transparent;
+                        font-weight: bold;
+                        text-align: center;
+                        border: 1px solid white;
+                        border-radius: 10px;
+                        cursor: pointer;
+                    }}
+                    .auth_link:hover {{
+                        background-color: red;
+                    }}
+                </style>
+                <a href="{auth_link}" target="_blank" class="auth_link" style="color: white; text-decoration: none;">Cliquez ici pour vous authentifier</a>
         """, unsafe_allow_html=True)
         if st.button("J'ai terminé l'authentification"):
             # indiquer que l’utilisateur maintenant est authentifié.
             st.session_state['is_authenticated'] = True
             st.session_state["account_id"] = get_account_id_from_unipile()  # Récupérer l'account_id depuis Unipile
-            st.rerun()
+            # st.rerun()
+            # st.write("account_id:", st.session_state.get("account_id"))
 else: #si is_authenticated est True
     st.success("Vous êtes authentifié !")
     post_auth_data_n8n()
@@ -210,12 +216,15 @@ else: #si is_authenticated est True
     
     
     # --- récupération & robustification des données ---
-    rows = run_query()  # ou run_query(account_id) 
-    if not rows:
-        st.warning("Aucune donnée récupérée de Supabase (rows vide ou None).")
-        df = pd.DataFrame()
+    rows_all = run_query()  # ou run_query(account_id) 
+    df_all = pd.DataFrame(rows_all) if rows_all else pd.DataFrame()
+
+    # filtrer les messages qui m'appartiennent
+    if st.session_state.get("account_id"):
+        # Filtrer les messages par account_id
+        df = df_all[df_all["account_id"] == st.session_state["account_id"]]
     else:
-        df = pd.DataFrame(rows)
+        df = pd.DataFrame()
 
     # debug utile — supprime quand c'est OK
     # st.write("DEBUG - colonnes reçues :", df.columns.tolist())
@@ -228,14 +237,29 @@ else: #si is_authenticated est True
         return pd.Series(dtype=object)
 
     # récupérer valeurs de profil de façon sûre
-    first_valid_profile = safe_series(df, "profile_picture_url")
-    first_profile_name = safe_series(df, "full_name")
-    first_profile_linkedin_url = safe_series(df, "linkedin_url")
+    # first_valid_profile = safe_series(df, "profile_picture_url")
+    # first_profile_name = safe_series(df, "full_name")
+    # first_profile_linkedin_url = safe_series(df, "linkedin_url")
+
+    my_messages = df[df["account_id"] == st.session_state["account_id"]]
+
+    # st.write("DEBUG - Messages de l'utilisateur :", my_messages) #eddig jo!!!
+
+    my_own_rows = my_messages[my_messages["is_from_me"] == True]
+
+    if not my_own_rows.empty:
+        profile_picture_url = my_own_rows["profile_picture_url"].dropna().iloc[0] if "profile_picture_url" in my_own_rows.columns else None
+        profile_full_name = my_own_rows["full_name"].dropna().iloc[0] if "full_name" in my_own_rows.columns else None
+        profile_linkedin_url = my_own_rows["linkedin_url"].dropna().iloc[0] if "linkedin_url" in my_own_rows.columns else None
+    else:
+        profile_picture_url = None
+        profile_full_name = None
+        profile_linkedin_url = None
 
     # les données de profil
-    profile_picture_url = first_valid_profile.iloc[0] if not first_valid_profile.empty else None
-    profile_full_name = first_profile_name.iloc[0] if not first_profile_name.empty else None
-    profile_linkedin_url = first_profile_linkedin_url.iloc[0] if not first_profile_linkedin_url.empty else None
+    # profile_picture_url = first_valid_profile.iloc[0] if not first_valid_profile.empty else None
+    # profile_full_name = first_profile_name.iloc[0] if not first_profile_name.empty else None
+    # profile_linkedin_url = first_profile_linkedin_url.iloc[0] if not first_profile_linkedin_url.empty else None
 
     # Header / profil
     st.markdown("""
@@ -292,12 +316,13 @@ else: #si is_authenticated est True
 
     # création map (dictionnaire) chat_name -> chat_id en gérant les absences && chat_id ==> nom de la personne
     chat_name_map = {}
-    for chat_id in df["chat_row_id"].unique():
-        participants = df[df["chat_row_id"] == chat_id]
+    for chat_id in df_all["chat_row_id"].unique():
+        participants = df_all[df_all["chat_row_id"] == chat_id]
+        # st.write("DEBUG - Participants pour le chat_id", chat_id, ":", participants)
 
         # déterminer qui est la personne avec "moi" discute
         others = participants[participants["sender"] != my_provider_id] if "sender" in participants.columns else participants
-        
+
         # Extraire un nom valide de "l'autre personne"
         names = others["full_name"].dropna().unique() if "full_name" in others.columns else []
 
@@ -305,11 +330,11 @@ else: #si is_authenticated est True
         # on récupère un autre champ ("nom du participant") =>c'est bien message_df!!
         # dropna() => retirer les valeurs NaN ([Alice, NaN, Michel, NaN]) => [Alice, Michel]
         # unique() => garder uniquement les valeurs distinctes restantes 
-        fallback = participants["attendee_name"].dropna().unique() if "attendee_name" in participants.columns else []
+        fallback = participants["attendee_name"].dropna().unique() if "attendee_name" in others.columns else []
 
         # à regarder il y a combien pax dans le chat => à mettre en commentaire
-        # st.write("Tous les sender dans ce chat :", messages_df["sender"].unique())
-        # st.write("Tu es :", my_provider_id)
+        # st.write("Tous les senders dans ce chat :", participants["sender"].unique())
+        # st.write("my provider id: ", my_provider_id)
 
         if len(names) > 0:
             #  on prend le 1iere pax trouvé  (pas moi) comme nom du contact
@@ -406,9 +431,9 @@ else: #si is_authenticated est True
         # fonction pour envoyer un message à LinkedIn via l'API Unipile
         # au cas où: dans les paramètres était "linkedin_local_id" => mais on n'en a pas besoin ici
         def post_message_to_linkedin(message, chat_id, account_id, provider_id):
-            url = f"https://api17.unipile.com:14751/api/v1/chats/{chat_id}/messages"
+            url = f"https://api18.unipile.com:14803/api/v1/chats/{chat_id}/messages"
             headers = {
-                "X-API-KEY": st.secrets['UNIPILE_API_KEY_2'],
+                "X-API-KEY": st.secrets['UNIPILE_API_KEY_3'],
                 "Content-Type": "application/json",
                 "accept": "application/json"
             }
@@ -440,11 +465,11 @@ else: #si is_authenticated est True
 
         # pour envoyer un message par l'utilisateur: boîte de saisi de type chat
     
-        prompt = st.chat_input(f"Rédigez un message à {full_name}") # a regarder!!!!!!!!!!!!!
+        prompt = st.chat_input(f"Rédigez un message") # a regarder!!!!!!!!!!!!!
         if prompt:
             # st.write(f"Vous avez écrit : {prompt}")
             post_message_to_linkedin(prompt, chat_id_choisi, account_id, provider_id)
 
-        # pour rafraîchir la page et afficher le nouveau message
-        st.rerun() 
+            # pour rafraîchir la page et afficher le nouveau message
+            st.rerun() 
 
