@@ -113,7 +113,7 @@ def get_account_id_from_unipile():
     
     return None
 
-
+# transmission l'account_id à N8N pour automatiser le suivi
 def post_auth_data_n8n():
 
     account_id = get_account_id_from_unipile() 
@@ -184,7 +184,6 @@ else: #si is_authenticated est True
     st.success("Vous êtes authentifié !")
     post_auth_data_n8n()
 
-
     # Si l'utilisateur est authentifié, on peut continuer avec l'affichage des messages
 
     # initialisation de la connection => à exécuter une seule fois
@@ -231,10 +230,10 @@ else: #si is_authenticated est True
     # st.write("DEBUG - 3 premières lignes :", df.head(3))
 
     # helper pour récupérer une série en toute sécurité
-    def safe_series(df, col):
-        if col in df.columns:
-            return df[col].dropna()
-        return pd.Series(dtype=object)
+    #def safe_series(df, col):
+     #   if col in df.columns:
+      #      return df[col].dropna()
+       # return pd.Series(dtype=object)
 
     # récupérer valeurs de profil de façon sûre
     # first_valid_profile = safe_series(df, "profile_picture_url")
@@ -452,7 +451,7 @@ else: #si is_authenticated est True
             except:
                 data = response.text
 
-             # Vérifier si la requête a réussi
+            # Vérifier si la requête a réussi
             # 201 => Created, 200 => OK
             # 202 => Accepted (la requête a été acceptée mais pas encore traitée
             if response.status_code in (200, 201):
@@ -465,7 +464,7 @@ else: #si is_authenticated est True
 
         # pour envoyer un message par l'utilisateur: boîte de saisi de type chat
     
-        prompt = st.chat_input(f"Rédigez un message") # a regarder!!!!!!!!!!!!!
+        prompt = st.chat_input(f"Rédigez un message")
         if prompt:
             # st.write(f"Vous avez écrit : {prompt}")
             post_message_to_linkedin(prompt, chat_id_choisi, account_id, provider_id)
