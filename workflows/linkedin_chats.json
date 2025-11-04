@@ -1,0 +1,817 @@
+{
+  "name": "linkedin_chats",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -5584,
+        4352
+      ],
+      "id": "5eda6af0-7a66-4c2b-925e-cd0f8cf54c7d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n   \"offset\": 0,\n    \"limit\": 50\n  }\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5392,
+        4064
+      ],
+      "id": "ae2b9e87-51a7-426a-957f-261666fbf0f3",
+      "name": "set chat"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "131e0fa9-a551-4a49-975d-76f3469d1ea6",
+              "name": "chat_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "39789967-9b53-4c08-aadf-0abd4e8a53dd",
+              "name": "timestamp",
+              "value": "={{ $json.timestamp }}",
+              "type": "string"
+            },
+            {
+              "id": "a9b60720-2056-4cea-9dde-9cf636ad01bd",
+              "name": "attendee_provider_id",
+              "value": "={{ $json.attendee_provider_id }}",
+              "type": "string"
+            },
+            {
+              "id": "ab856e5e-aa9c-4f78-94d3-e883e4c86fa2",
+              "name": "read_only",
+              "value": "={{ $json.read_only }}",
+              "type": "number"
+            },
+            {
+              "id": "e07caae4-5111-4744-b7bc-0216d83f4dbe",
+              "name": "unread",
+              "value": "={{ $json.unread }}",
+              "type": "number"
+            },
+            {
+              "id": "24c91766-fa13-45af-9218-7371c93e1425",
+              "name": "folder",
+              "value": "={{ [$json.folder[0]] }}",
+              "type": "array"
+            },
+            {
+              "id": "4ed0402a-df31-43a5-8009-7d33e14c6d63",
+              "name": "content_type",
+              "value": "={{ $json.content_type || 'message' }}",
+              "type": "string"
+            },
+            {
+              "id": "bc024906-17a6-43e9-8a90-a8dfd32b1483",
+              "name": "account_id",
+              "value": "={{ $json.account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "6cef5633-a4b7-46a1-ac64-8c3a2cfee563",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "54594a67-677d-47bc-8aa7-7f8817ef5fdf",
+              "name": "muted_until",
+              "value": "={{ $json.muted_until }}",
+              "type": "string"
+            },
+            {
+              "id": "9b0cf239-aeee-4092-a934-43024c2520db",
+              "name": "provider_id",
+              "value": "={{ $json.provider_id }}",
+              "type": "string"
+            },
+            {
+              "id": "c1207dad-0928-4883-821c-c108beaab7b0",
+              "name": "disabledFeatures",
+              "value": "={{ $json.disabledFeatures }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4544,
+        4128
+      ],
+      "id": "4813b623-5cd2-468c-b40b-0744b0628629",
+      "name": "transform chat"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -4960,
+        4080
+      ],
+      "id": "2b9a248a-a136-44ae-be0d-f53472fe30eb",
+      "name": "Split Out Chats"
+    },
+    {
+      "parameters": {
+        "url": "https://api18.unipile.com:14803/api/v1/chats",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "={{ $json.limit }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $json.offset }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5184,
+        4080
+      ],
+      "id": "f0c1a4d9-881b-406e-8239-6956170fe7f4",
+      "name": "get chats",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "nwJce3ibNPvi5jFU",
+          "name": "Header Auth uj mediaschool"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://uifntcjmjpwmcviozgbz.supabase.co/rest/v1/linkedin_chats",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"apikey\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZm50Y2ptanB3bWN2aW96Z2J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MDkwNzgsImV4cCI6MjA2MjI4NTA3OH0.nO4phWWcmLe2W9vbvUlFYRcH2tTeNZh_X07JPbawwKc\",\n  \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZm50Y2ptanB3bWN2aW96Z2J6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NjcwOTA3OCwiZXhwIjoyMDYyMjg1MDc4fQ.MlUp0pCMMLETOSpW9HWeqH_yJ0FBwgsFORs-ooBYVC8\",\n  \"Content-Type\": \"application/json\",\n  \n  \"Prefer\": \"return=representation\"\n\n}",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "= [{ \n    \"id\": \"{{ $json.chat_id }}\",\n    \"timestamp\": \"{{ $json.timestamp }}\",\n    \"attendee_provider_id\": \"{{ $json.attendee_provider_id }}\",\n    \"unread\": \"{{ $json.unread }}\",\n    \"read_only\": \"{{ $json.read_only }}\",\n    \"folder\": {{ JSON.stringify($json.folder) }},\n    \"provider_id\": \"{{ $json.provider_id }}\",\n    \"account_id\": \"{{ $json.account_id }}\" \n}]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3200,
+        3888
+      ],
+      "id": "8ca49d71-c85c-4c8d-8b57-5926e5bcccd2",
+      "name": "Save chats to Supabase",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "batchSize": "={{ 1 }}",
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -4336,
+        4272
+      ],
+      "id": "c2175519-e25d-49d3-ac9a-3a9f18e6517a",
+      "name": "Loop Over Items1",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3936,
+        4032
+      ],
+      "id": "f96e3398-b470-4bb8-83eb-f5f836913f02",
+      "name": "Merge_chats",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new_linkedin_message_received",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -5568,
+        3920
+      ],
+      "id": "51a64150-26a4-4ae6-9913-3769636d3311",
+      "name": "Webhook_new_linkedin_messages",
+      "webhookId": "825417d9-f4ec-4c85-a471-edc4c2734c85"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst items = $input.all();\n\nfor (const item of items) {\n  //transforme en tableau => \"inbox\" -> [\"inbox\"]\n  if(typeof item.json.folder === \"string\"){\n    item.json.folder = [item.json.folder];\n  }\n \n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4768,
+        4096
+      ],
+      "id": "9c615044-1176-481d-8b67-d86cc9bf95ef",
+      "name": "normaliser folder en tableau"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.hasOwnProperty(\"row_id\") }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    },
+                    "id": "82869ea6-77e5-4bdc-8092-8daf7425b142"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "save bdd"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cc3f5706-6bae-4edb-b652-7fc3c7547ae0",
+                    "leftValue": "={{ $json.hasOwnProperty(\"row_id\") }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "continue"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3616,
+        3888
+      ],
+      "id": "73572e9f-1a79-4733-9f60-216c4675302f",
+      "name": "Switch",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT row_id, id, account_id\nFROM linkedin_chats\nWHERE id = '{{ $json.id }}'\nLIMIT 1;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2992,
+        4112
+      ],
+      "id": "f10d4a67-d9d1-472c-9732-a1fc5bbc4a11",
+      "name": "récup row_id",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "Fm2HaFYwdZfG8QJD",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RL4VhcuMlXEGrqKn",
+          "mode": "list",
+          "cachedResultName": "LinkStream — subworkflow _linkedin_messages"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -3008,
+        4432
+      ],
+      "id": "1ae0da62-d6bb-46d2-8180-1eb70008fbe6",
+      "name": "Execute Workflow linkedin messages",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT row_id, id, account_id\nFROM linkedin_chats\nWHERE id = '{{ $json.chat_id }}'\nLIMIT 1;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -4192,
+        4000
+      ],
+      "id": "440dda0b-0843-4eeb-91cf-f59a904ca20f",
+      "name": "récup row_id, id, account_id",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "Fm2HaFYwdZfG8QJD",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new_user_auth2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -5632,
+        4144
+      ],
+      "id": "f8758105-df48-4484-a77c-8810ba025a96",
+      "name": "Webhook_new_user_auth2",
+      "webhookId": "87fb8b2b-51ab-443c-8941-94a9e8e4d01e"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "chat_id",
+              "field2": "id"
+            }
+          ]
+        },
+        "joinMode": "enrichInput1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3696,
+        4336
+      ],
+      "id": "2e20a2f6-9c78-4ca3-85fc-3f387b064154",
+      "name": "envoie données au prochain subworkflow",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0deb6ac2-9451-4f56-992c-455009af77d0",
+              "leftValue": "={{ $json[\"chat_id\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3392,
+        4368
+      ],
+      "id": "2efa68d9-8385-4270-b403-f57b5544ab7d",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7cfe3415-d5d1-40ed-9fe9-1b5224b5201f",
+              "name": "row_id",
+              "value": "={{ $json.row_id }}",
+              "type": "string"
+            },
+            {
+              "id": "551e3647-beed-48ef-8088-bb5ac9cab373",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3904,
+        4992
+      ],
+      "id": "4181cdc3-35f0-43c0-a565-7a693a022848",
+      "name": "Edit Fields1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7cfe3415-d5d1-40ed-9fe9-1b5224b5201f",
+              "name": "row_id",
+              "value": "={{ $json.row_id }}",
+              "type": "string"
+            },
+            {
+              "id": "551e3647-beed-48ef-8088-bb5ac9cab373",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4640,
+        5008
+      ],
+      "id": "01f98111-f571-425e-9373-1a2290d040de",
+      "name": "Edit Fields",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://juklau.app.n8n.cloud/webhook/subworkflow-linkedin-messages",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n \n  \"chat_id\":{{ $json.id }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4128,
+        5008
+      ],
+      "id": "5fe2fe92-c6a7-4c3d-8f49-ee70c5776a3c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -4432,
+        5008
+      ],
+      "id": "1cf872f1-d7a6-444c-8dad-ac12eba3345a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5d9a11b2-8035-4e94-befa-f1d480b90ba5",
+              "leftValue": "={{ $json.hasOwnProperty(\"row_id\") }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4896,
+        5024
+      ],
+      "id": "d24b786e-4d6e-4849-bb89-5ca36d33da98",
+      "name": "If",
+      "alwaysOutputData": true,
+      "notesInFlow": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "set chat": {
+      "main": [
+        [
+          {
+            "node": "get chats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transform chat": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Chats": {
+      "main": [
+        [
+          {
+            "node": "normaliser folder en tableau",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get chats": {
+      "main": [
+        [
+          {
+            "node": "Split Out Chats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save chats to Supabase": {
+      "main": [
+        [
+          {
+            "node": "récup row_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "envoie données au prochain subworkflow",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Merge_chats",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "récup row_id, id, account_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge_chats": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "envoie données au prochain subworkflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_new_linkedin_messages": {
+      "main": [
+        [
+          {
+            "node": "set chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normaliser folder en tableau": {
+      "main": [
+        [
+          {
+            "node": "transform chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Save chats to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "récup row_id": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow linkedin messages": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "récup row_id, id, account_id": {
+      "main": [
+        [
+          {
+            "node": "Merge_chats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_new_user_auth2": {
+      "main": [
+        [
+          {
+            "node": "set chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "envoie données au prochain subworkflow": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow linkedin messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e1aaaae7-4ed7-49af-8316-73b86956edde",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "eb0477ed3e4b5967da0cdec41dce1dbcdad844ae6c3945896ab9f49ee6bda85f"
+  },
+  "id": "aG0nn6KnQSounoiL",
+  "tags": []
+}

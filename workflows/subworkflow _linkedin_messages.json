@@ -1,0 +1,562 @@
+{
+  "name": "subworkflow _linkedin_messages",
+  "nodes": [
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -4128,
+        704
+      ],
+      "id": "fca0f803-fa6f-4096-ba7c-69e21adde2f3",
+      "name": "Split Out messages"
+    },
+    {
+      "parameters": {
+        "url": "=https://api18.unipile.com:14803/api/v1/chats/{{ $json.chat_id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            },
+            {
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}"
+            },
+            {
+              "name": "account_id",
+              "value": "={{ $json.account_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4496,
+        832
+      ],
+      "id": "5f87c04a-4d21-4f00-88bb-b01c4a8c6fd3",
+      "name": "get messages",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "nwJce3ibNPvi5jFU",
+          "name": "Header Auth uj mediaschool"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17130204-8dd9-46a5-8502-5455d264839c",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "01f0229f-1968-4b8a-9c57-0cf4da273f32",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "string"
+            },
+            {
+              "id": "29fee6b8-5a04-48a2-9b41-316c3c59b25b",
+              "name": "content",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "c22de282-37bb-4900-8ec0-ef527ead4340",
+              "name": "created_at",
+              "value": "={{ $json.timestamp }}",
+              "type": "string"
+            },
+            {
+              "id": "78200f2c-ae71-4044-a5fd-4a55f5387921",
+              "name": "sender",
+              "value": "={{ $json.sender_id }}",
+              "type": "string"
+            },
+            {
+              "id": "138d4adc-9d07-41e4-82e0-cfe6c039347d",
+              "name": "is_from_me",
+              "value": "={{ $json.is_sender }}",
+              "type": "string"
+            },
+            {
+              "id": "2dfc50db-b8bf-49c5-86dd-38aa4ac20155",
+              "name": "account_id",
+              "value": "={{ $json.account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "fe1b0890-57b7-4d58-bab9-c4e4c75c30c2",
+              "name": "provider_id",
+              "value": "={{ $json.provider_id }}",
+              "type": "string"
+            },
+            {
+              "id": "ed0d0977-c9c6-44e8-8cb0-1645dcf35f4e",
+              "name": "message_type",
+              "value": "={{ $json.message_type }}",
+              "type": "string"
+            },
+            {
+              "id": "06b5329d-f574-49fa-881f-93eb08748b7c",
+              "name": "reactions",
+              "value": "={{ $json.reactions }}",
+              "type": "string"
+            },
+            {
+              "id": "7ba9c8d4-01db-43b5-a3a3-13b702979323",
+              "name": "attachments",
+              "value": "={{ $json.attachments }}",
+              "type": "string"
+            },
+            {
+              "id": "5e526db1-69d3-4fe7-85a7-200b535079fa",
+              "name": "chat_row_id",
+              "value": "={{$('When Executed by Another Workflow').item.json.row_id }}",
+              "type": "string"
+            },
+            {
+              "id": "9ccd0bb3-6d68-4955-82e6-89cdb61403e8",
+              "name": "chat_provider_id",
+              "value": "={{ $json.chat_provider_id }}",
+              "type": "string"
+            },
+            {
+              "id": "8d26331e-5ad4-441c-a665-c1988f175e3c",
+              "name": "sender_attendee_id",
+              "value": "={{ $json.sender_attendee_id }}",
+              "type": "string"
+            },
+            {
+              "id": "32e9b016-79ee-4e99-8bcf-d865e688644b",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "6ec25dc1-57a1-4a5c-92a4-15a01b231606",
+              "name": "original",
+              "value": "={{ $json.original }}",
+              "type": "string"
+            },
+            {
+              "id": "bee37e1f-33f3-4ef7-9a5b-48ed086835c5",
+              "name": "behavior",
+              "value": "={{ $json.behavior }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3792,
+        640
+      ],
+      "id": "33c53156-7de8-4404-9899-fe32df8fe763",
+      "name": "transform message",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "82a353a4-cd87-49ed-b2fc-a2b625996bd5",
+              "leftValue": "={{ $json[\"row_id\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3088,
+        640
+      ],
+      "id": "09f3d2a3-a699-44ac-808f-2249ca556d09",
+      "name": "is in table_messages?",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "tableId": "linkedin_messages",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2832,
+        688
+      ],
+      "id": "c194d5e9-07bc-4ae5-81d6-7248b33dec04",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "uxgxQV9kFrB1O7j6",
+          "name": "Supabase account utilisé"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, account_id, row_id\nFROM linkedin_messages\nWHERE id = '{{ $json[\"id\"] }}'\nLIMIT 5;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -3536,
+        448
+      ],
+      "id": "c0d84b7d-129a-4d11-9983-9637446ee376",
+      "name": "sql query_row_id de message",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "Fm2HaFYwdZfG8QJD",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "id",
+        "joinMode": "enrichInput2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3328,
+        624
+      ],
+      "id": "f73723fd-a28f-4e17-b7b7-706586f2fc48",
+      "name": "Merge_messages",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -4768,
+        656
+      ],
+      "id": "ef824768-478e-4857-b18f-d2ca7495faf3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YSwXkjjctyFha2Ho",
+          "mode": "list",
+          "cachedResultName": "LinkStream — subworkflow_linkedin_people"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -3728,
+        960
+      ],
+      "id": "b897741b-6655-4207-9366-f747c4092fbd",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "//mémoriser les ids déjà rencontré pour éviter les doublons\nconst uniques = Object.create(null);\n\n//stocker les resultats\nconst results = [];\n\n//vrai liste des messages => boucle pour chaque entrée\nfor (const wrapper of $input.all()) {\n\n  const messages = wrapper.json.items || [];\n\n  //boucle pour les chaque message\n  for(const message of messages){\n    \n    const senderId = String(message.sender_id || '');\n    const accountId = message.account_id;\n    \n    if (senderId && !uniques[senderId] ){\n      uniques[senderId] = true; \n  \n      results.push({\n        json: {\n          provider_id: senderId,\n          account_id: accountId\n        }\n      });\n    }\n  }\n}\n\nconsole.log(results)\nreturn results;\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3984,
+        944
+      ],
+      "id": "c5b90eeb-61d5-44ab-b15d-79b28b4b710d",
+      "name": "récup senderId, accountId",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "209adaba-3672-4684-9c66-924899894605",
+              "name": "chat_row_id",
+              "value": "={{ $json.row_id}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4352,
+        544
+      ],
+      "id": "ab8c1a4e-01fd-4685-95b6-a40890c128d9",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7dc837d2-ad26-403b-b07e-5e8befba6aa3",
+              "name": "chat_row_id",
+              "value": "={{ $json.row_id }}",
+              "type": "string"
+            },
+            {
+              "id": "7b1e8d67-fbf0-49de-bc00-f8a0a527f780",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3872,
+        1392
+      ],
+      "id": "4436331e-f2bd-40bb-90df-6337ed7aaa65",
+      "name": "Edit Fields",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "chat_id",
+        "joinMode": "enrichInput2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3616,
+        1392
+      ],
+      "id": "1e729587-7a42-447d-9e5d-704623403de0",
+      "name": "Merge2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "subworkflow-linkedin-messages",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -4128,
+        1392
+      ],
+      "id": "2e49b99a-36d2-4aa9-9dce-0eef53879d51",
+      "name": "Webhook de workflow linkedin_chats",
+      "webhookId": "7d406cfc-12fd-4015-8943-3b9577bdbf29"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "chat_id": "vMynIxcTUjiE34EROTIZOw",
+          "timestamp": "2025-08-11T15:10:07.000Z",
+          "attendee_provider_id": "ACoAAAuGJ_kBcn1LF-H8cWpFHN_Ak1wKKkmMt10",
+          "read_only": 0,
+          "unread": 0,
+          "folder": [
+            "INBOX"
+          ],
+          "content_type": "message",
+          "account_id": "STlsdZv3TFy1svC7qyEERQ",
+          "name": null,
+          "muted_until": null,
+          "provider_id": "2-NjZmNTExODYtMzcwYS00NGExLWIzMDQtZGNkMDRlNDdkNjAyXzEwMA==",
+          "disabledFeatures": "[]",
+          "row_id": "1544",
+          "id": "vMynIxcTUjiE34EROTIZOw"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Split Out messages": {
+      "main": [
+        [
+          {
+            "node": "transform message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get messages": {
+      "main": [
+        [
+          {
+            "node": "récup senderId, accountId",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Out messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transform message": {
+      "main": [
+        [
+          {
+            "node": "sql query_row_id de message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge_messages",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "is in table_messages?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sql query_row_id de message": {
+      "main": [
+        [
+          {
+            "node": "Merge_messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge_messages": {
+      "main": [
+        [
+          {
+            "node": "is in table_messages?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "récup senderId, accountId": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dd1a61e1-3a4d-44c6-b73b-b0beec0fc797",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "eb0477ed3e4b5967da0cdec41dce1dbcdad844ae6c3945896ab9f49ee6bda85f"
+  },
+  "id": "RL4VhcuMlXEGrqKn",
+  "tags": []
+}
