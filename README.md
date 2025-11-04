@@ -80,9 +80,9 @@ Streamlit (Python) : interface graphique permettant :
 ```
   📁 LinkStream/
   │
-  ├── app.py                 # Application principale Streamlit
-  ├── venv                   # Environnement virtuel Python (non versionné)
-  ├── workflows/             # Workflows d’automatisation n8n
+  ├── app.py            # Application principale Streamlit
+  ├── venv              # Environnement virtuel Python (non versionné)
+  ├── workflows/        # Workflows d’automatisation n8n => retirer pour la sécurité des données
   │   └── linkedin_chats.json
   │   └── linkedin_register webhook unipile(1).json
   │   └── register webhook unipile.json
