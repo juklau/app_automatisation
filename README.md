@@ -181,11 +181,11 @@ L’application affiche :
 
 ## Auteur
 Klaudia Juhasz
-Étudiante BTS SIO SLAM (session 2026)
-Projet réalisé au sein de OPS Imperium, Nice
-Encadré par M. Victor Langlois
+- Étudiante BTS SIO SLAM (session 2026)
+- Projet réalisé au sein de OPS Imperium, Nice
+- Encadré par M. Victor Langlois
 
-GitHub : juklau/app_automatisation
+**GitHub :** [juklau/app_automatisation](https://github.com/juklau/app_automatisation/tree/main)
 
 ---
 
