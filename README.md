@@ -3,27 +3,29 @@
 
 ---
 
-## Description du projet
+## Présentation du projet
 
-**LinkStream** est une application web interactive développée avec **Streamlit**, **Supabase**, **Unipile API** et **n8n**, permettant de :
+**LinkStream** est une application web permettant de centraliser, automatiser et exploiter les conversations LinkedIn à partir d’une interface unique.
 
-- Récupérer automatiquement les conversations et messages LinkedIn.  
-- Les stocker dans une base de données relationnelle **Supabase (PostgreSQL)**.  
-- Les afficher dans une interface simple et ergonomique.  
-- Envoyer de nouveaux messages directement depuis l'application.
+Le projet repose sur une architecture orientée automatisation et intégration d’API, combinant :
+- **Unipile API** pour l’accès aux données LinkedIn,
+- **n8n** pour l’orchestration des workflows,
+- **Supabase (PostgreSQL)** pour le stockage structuré,
+- **Streamlit** pour l’interface utilisateur.
 
-Cette solution a été développée dans le cadre d’un projet professionnel au sein de **OPS Imperium**, société spécialisée en IA et automatisation, lors d’un stage de BTS SIO SLAM.
+Ce projet a été réalisé dans le cadre de mon **stage de première année de BTS SIO SLAM** au sein de l’entreprise **OPS Imperium**, spécialisée en automatisation et intelligence artificielle.
 
 ---
 
 ## Contexte et objectifs
 
-n8n est utilisé pour automatiser la collecte et le traitement des données issues de LinkedIn via **l’API Unipile**, tandis que **Streamlit** sert d’interface frontend pour consulter et interagir avec ces données.
+L’outil d’automatisation **n8n** permet de récupérer et traiter efficacement des données via API, mais ne propose pas d’interface utilisateur pour consulter ou exploiter ces données.
 
-Objectifs principaux :
-- **Centraliser** les messages et conversations LinkedIn.  
-- **Visualiser** les échanges sous forme de tableau ou de fil de discussion.  
-- **Interagir** avec les conversations (lecture et envoi de messages).  
+L’objectif de LinkStream est donc de fournir une **interface web simple et fonctionnelle** permettant de :
+
+- **Centraliser** les conversations et messages LinkedIn,
+- **Visualiser** les échanges sous forme de fil de discussion,
+- **Interagir** avec les conversations (lecture et envoi de messages),
 - **Automatiser** la synchronisation des données entre LinkedIn, n8n et Supabase.
 
 ---
@@ -47,30 +49,30 @@ Le projet repose sur une architecture modulaire composée de quatre couches prin
 ### Backend
 
 - Unipile API : interface d'accès aux données LinkedIn (messages, profils, conversations).
-- n8n : automatisation de la collecte et du traitement des messages.
-- Supabase : stockage structuré et accès via API.
+- n8n : automatisation des flux de données (webhooks, traitements, filtrage).
+- Supabase : stockage relationnel (PostgreSQL) et accès via API.
 
 ### Frontend
 
 Streamlit (Python) : interface graphique permettant :
 - l’authentification utilisateur via Unipile ;
 - la visualisation des conversations ;
-- l’envoi de nouveaux messages LinkedIn.
+- l’envoi de messages LinkedIn.
 
 ---
 
 ## Technologies utilisées
 
 ```
-  | Composant       | Outil / Technologie              |
-  | --------------- | -------------------------------- |
-  | Frontend        | Streamlit (Python)               |
-  | Backend         | n8n (workflows d’automatisation) |
-  | API             | Unipile                          |
-  | Base de données | Supabase (PostgreSQL)            |
-  | Déploiement     | Docker / Docker Compose          |
-  | IDE             | Visual Studio Code               |
-  | Versioning      | GitHub                           |
+  | Composant              | Outil / Technologie              |
+  | ---------------------- | -------------------------------- |
+  | Frontend               | Streamlit (Python)               |
+  | Automatisation         | n8n (workflows d’automatisation) |
+  | API                    | Unipile                          |
+  | Base de données        | Supabase (PostgreSQL)            |
+  | Déploiement            | Docker / Docker Compose          |
+  | IDE                    | Visual Studio Code               |
+  | Versioning             | GitHub                           |
 
 ```
 ---
@@ -80,9 +82,9 @@ Streamlit (Python) : interface graphique permettant :
 ```
   📁 LinkStream/
   │
-  ├── app.py            # Application principale Streamlit
-  ├── venv              # Environnement virtuel Python (non versionné)
-  ├── workflows/        # Workflows d’automatisation n8n => retirer pour la sécurité des données
+  ├── app.py                 # Application principale Streamlit
+  ├── venv                   # Environnement virtuel Python (non versionné)
+  ├── workflows/             # Workflows d’automatisation n8n => non inclus pour raisons de sécurité
   │   └── linkedin_chats.json
   │   └── linkedin_register webhook unipile(1).json
   │   └── register webhook unipile.json
@@ -124,7 +126,8 @@ Streamlit (Python) : interface graphique permettant :
 ***Créer un environnement virtuel***
 ```
   python3 -m venv venv
-  source venv/bin/activate   # (ou venv\Scripts\activate sous Windows)
+  source venv/bin/activate     # Linux / macOS
+  # venv\Scripts\activate      # Windows
 ```
 
 ***Installer les dépendances***
@@ -139,43 +142,44 @@ Streamlit (Python) : interface graphique permettant :
 
 ---
 
-##Fonctionnement général
+## Fonctionnement général
 
 ***1. Authentification***
-- Un lien d’authentification est généré via Unipile API (generate_auth_link()).
+- Génération d’un lien d’authentification via l’API Unipile (generate_auth_link()).
 - Après validation, l’utilisateur est redirigé vers LinkStream.
-- L’account_id LinkedIn est récupéré et transmis à n8n.
+- Récupération de l’***account_id*** LinkedIn.
+- Transmission de l’identifiant à n8n pour déclencher les automatisations.
 
-***2. Récupération des données***
-- n8n reçoit les webhooks d’Unipile (nouveaux messages, chats).
-- Les workflows traitent les données (nettoyage, enrichissement, insertion dans Supabase).
+***2. Automatisation des données***
+- Réception des webhooks Unipile dans n8n (nouveaux messages, chats).
+- Traitement, enrichissement et insertion des données dans Supabase.
+- Gestion des doublons et mises à jour automatiques.
 
 ***3. Affichage dans Streamlit***
-L’application affiche :
-- la liste des conversations,
-- les messages échangés (photo, nom, heure, texte),
-- le profil utilisateur.
+- Liste des conversations LinkedIn.
+- Affichage des messages (photo, nom, horodatage, contenu).
+- Affichage du profil utilisateur.
 
 ***4. Envoi de messages***
-- L’utilisateur peut envoyer un message LinkedIn directement depuis Streamlit.
-- La requête POST est transmise à l’API Unipile, puis synchronisée via n8n.
+- Envoi direct de messages LinkedIn depuis Streamlit.
+- Synchronisation automatique via l’API Unipile et n8n.
 
 ---
 
 ## Tests et validation
-- Tests unitaires : sur les fonctions d’authentification, d’insertion et de récupération.
+- Tests unitaires : fonctions d’authentification et d’accès aux données (insertion, récupération).
 - Tests d’intégration : communication entre Unipile ↔ n8n ↔ Supabase ↔ Streamlit.
-- Tests utilisateurs : simulation complète d’un échange LinkedIn (authentification → affichage → envoi).
+- Tests utilisateurs : scénario complet (connexion → authentification → consultation → envoi).
 
 ---
 
 ## Améliorations futures
 - Implémentation OAuth complète pour LinkedIn.
-- UI responsive et personnalisée.
-- Intégration d’autres réseaux (Gmail, WhatsApp, Messenger).
+- Interface utilisateur responsive et personnalisée.
+- Intégration multi-plateformes (Gmail, WhatsApp, Messenger).
 - Suggestions automatiques de réponse via IA générative.
 - Recherche et filtrage avancés des conversations.
-- Rafraîchissement automatique en temps réel.
+- Rafraîchissement en temps réel.
 
 ---
 
