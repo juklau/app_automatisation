@@ -5,3 +5,6 @@ egyeb.py
 test_auth.py
 
 workflows/*.json
+
+requirements_full.txt
+venv/

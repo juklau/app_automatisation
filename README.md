@@ -70,7 +70,6 @@ Streamlit (Python) : interface graphique permettant :
   | Automatisation         | n8n (workflows d’automatisation) |
   | API                    | Unipile                          |
   | Base de données        | Supabase (PostgreSQL)            |
-  | Déploiement            | Docker / Docker Compose          |
   | IDE                    | Visual Studio Code               |
   | Versioning             | GitHub                           |
 

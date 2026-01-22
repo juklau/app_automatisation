@@ -1,0 +1,25 @@
+# LinkStream - Dépendances minimales
+# Installation rapide du projet principal
+
+# ============================================
+# ESSENTIEL POUR LINKSTREAM
+# ============================================
+
+streamlit==1.47.0
+pandas==2.3.1
+requests==2.32.4
+supabase==2.10.0
+python-dateutil==2.9.0.post0
+
+# ============================================
+# OPTIONNEL : Mini-projet Google Docs API
+# ============================================
+# google-api-python-client==2.176.0
+# google-auth==2.40.3
+# google-auth-httplib2==0.2.0
+# google-auth-oauthlib==1.2.2
+
+# ============================================
+# INSTALLATION
+# ============================================
+# pip install -r requirements.txt

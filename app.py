@@ -14,20 +14,6 @@ from datetime import datetime, timezone
 from datetime import timedelta
 
 
-from urllib import response
-import requests
-import streamlit as st
-import numpy as np
-import pandas as pd
-import base64
-import os   #pour générer des id pour les messages envoyés 
-
-from supabase import create_client, Client
-from datetime import datetime, timezone
-from datetime import timedelta
-
-
-
 # génerer un lien d'authentification pour l'API Unipile
 def generate_auth_link():
 
